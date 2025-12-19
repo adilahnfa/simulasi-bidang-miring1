@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulasi Gerak Benda pada Bidang Miring</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .panel {
+      background: #ffffff;
+      padding: 15px;
+      width: 320px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 5px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 8px 15px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    canvas {
+      margin-top: 20px;
+      background: white;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Simulasi Gerak Benda pada Bidang Miring</h2>
+
+<div class="panel">
+  <label>Sudut bidang (derajat)</label>
+  <input type="number" id="theta" value="30">
+
+  <label>Koefisien gesek statis (μs)</label>
+  <input type="number" id="mu_s" value="0.4" step="0.01">
+
+  <label>Koefisien gesek kinetik (μk)</label>
+  <input type="number" id="mu_k" value="0.3" step="0.01">
+
+  <button onclick="runSimulation()">Jalankan Simulasi</button>
+</div>
+
+<canvas id="canvas" width="600" height="300"></canvas>
+
+<p id="info"></p>
+
+<script>
+function runSimulation() {
+  const g = 9.81;
+
+  const thetaDeg = parseFloat(document.getElementById("theta").value);
+  const mu_s = parseFloat(document.getElementById("mu_s").value);
+  const mu_k = parseFloat(document.getElementById("mu_k").value);
+
+  const theta = thetaDeg * Math.PI / 180;
+  const info = document.getElementById("info");
+
+  // Cek kondisi mulai bergerak
+  if (Math.tan(theta) <= mu_s) {
+    info.innerHTML = "Benda tidak bergerak karena gaya gesek statis masih lebih besar.";
+    clearCanvas();
+    return;
+  }
+
+  // Percepatan analitik
+  const a = g * (Math.sin(theta) - mu_k * Math.cos(theta));
+  info.innerHTML = "Benda bergerak dengan percepatan a = " + a.toFixed(2) + " m/s²";
+
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Parameter simulasi
+  let dt = 0.05;
+  let tMax = 3;
+  let x = 0;
+  let v = 0;
+
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height);
+
+  for (let t = 0; t <= tMax; t += dt) {
+    v = v + a * dt;
+    x = x + v * dt;
+
+    let px = (t / tMax) * canvas.width;
+    let py = canvas.height - x * 40;
+
+    ctx.lineTo(px, py);
+  }
+
+  ctx.stroke();
+}
+
+function clearCanvas() {
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+</script>
+
+</body>
+</html>
